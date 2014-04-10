@@ -18,6 +18,7 @@ import peewee
 import datetime
 import time
 import alertsClass
+
 ''' db initialization '''
 database=""
 szHost=""
@@ -112,13 +113,10 @@ def db_close():
 	#print "Killing connection"
 	mysql_db.close()
 
-def parseStringToDatetime(szString):
-	''' Get a string and return a datetime object '''
-	dateutil.parser.parse(str(szString))
 
 def storeUser(userObject):
 	''' Store user in db '''
-	creationDay = parseStringToDatetime(userObject.created_at)
+	creationDay = userObject.created_at
 	dbUser=persons(user_id=userObject.id,screenname=userObject.screen_name,name=userObject.name,description=userObject.description,listed_count=userObject.listed_count,friends_count=userObject.friends_count,statuses_count=userObject.statuses_count,followers_count=userObject.followers_count,favorites_count=userObject.favourites_count,url=userObject.url,geo_enable=userObject.geo_enabled,location=userObject.location,language=userObject.lang,protected_profile=userObject.protected,createdAt=creationDay)
 	insert(dbUser,'An exception flew by while storing the user!')
 def storeTweets(tweetObjects,userObject):
@@ -126,14 +124,14 @@ def storeTweets(tweetObjects,userObject):
 	now=datetime.datetime.now()
 	print ("\t[*]\tStoring %s's tweets. %s"%(userObject.screen_name,str(now)))
 	for tweet in tweetObjects:
-                if hasattr(tweet, 'retweeted_status'):
-			creationDay=parseStringToDatetime(tweet.retweeted_status.created_at)
+    		if hasattr(tweet, 'retweeted_status'):
+			creationDay=tweet.retweeted_status.created_at
 			dbTweet=tweets(tweet_id=tweet.retweeted_status.id,user_id=tweet.retweeted_status.user.id,status=tweet.retweeted_status.text,countFavorites=tweet.favorite_count,countRTs=tweet.retweet_count,time=tweet.retweeted_status.created_at)
 			insert(dbTweet,'An exception flew by while storing the tweet (1)!')
 			storeTweetEntities(tweet)
 			storeRetweet(tweet.retweeted_status.id,userObject.id,tweet.created_at)
 		else:
-			creationDay=parseStringToDatetime(tweet.created_at)
+			creationDay=tweet.created_at
 			dbTweet=tweets(tweet_id=tweet.id,user_id=tweet.user.id,status=tweet.text,countFavorites=tweet.favorite_count,countRTs=tweet.retweet_count,time=tweet.created_at)
 			insert(dbTweet,'An exception flew by while storing the tweet (2)!')
 			storeTweetEntities(tweet)
@@ -180,7 +178,7 @@ def storeFriends(friendsObject,user):
 	if(friendsObject is None):
                 return
 	for friend in friendsObject:
-		dbFriend=friends(user_id=user.id,friend_id=follower)
+		dbFriend=friends(user_id=user.id,friend_id=friend)
 		insert(dbFriend,'An exception flew by while storing the friend!')
 		
 def storeFavorites(userObject,favorites):
@@ -236,14 +234,14 @@ def matchCategory(url):
 		return 2
 	else:
 		return 4
-
 def insert(dbObject,alertText):
     db_connect()
     try:
 		dbObject.save(force_insert=True)
+		db_close()
     except Exception as e:
 		exceptionPrint(alertText,e)
-	db_close()
+		db_close()
 
 
 
