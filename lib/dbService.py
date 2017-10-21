@@ -119,13 +119,10 @@ class tweetsURLs(MySQLModel):
 
 
 def db_connect():
-    #  Connect to db
-    # print "Connecting to db"
     mysql_db.connect()
 
 
 def db_close():
-    # print "Killing connection"
     mysql_db.close()
 
 
