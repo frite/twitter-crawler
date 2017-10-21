@@ -22,15 +22,21 @@ class textAlert:
     warning = '\033[93m'
     failure = '\033[91m'
     endchar = '\033[0m'
+
     def header(self,message):
         print self.banner+message
+
     def okblue(self,message):
         print self.blue+message
+
     def okgreen(self,message):
         print self.green+message
+
     def warning(self,message):
         print self.warning+message
+
     def fail(self,message):
         print self.failure+message
+
     def endc(self,message):
         print self.endchar+message
